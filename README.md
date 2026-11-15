@@ -1,4 +1,4 @@
-# ludo_and_snake_ladder
+# Ludo & Snake Ladder
 
 A new Flutter project.
 

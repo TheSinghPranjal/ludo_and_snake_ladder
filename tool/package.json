@@ -1,0 +1,9 @@
+{
+  "name": "dice-party-tools",
+  "private": true,
+  "description": "Asset export tooling for Dice Party (SVG to PNG).",
+  "type": "module",
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "theme": "sweets",
+  "bodyWidth": {
+    "head": 0.32,
+    "tail": 0.12,
+    "unit": "tile"
+  },
+  "headAnchor": [
+    0.15,
+    0.5
+  ],
+  "tailAnchor": [
+    0.08,
+    0.5
+  ],
+  "headFacing": "+x",
+  "patternSpacing": 0.55,
+  "ladderShadow": {
+    "dx": 0.05,
+    "dy": 0.05,
+    "blur": 0.04,
+    "opacity": 0.14,
+    "unit": "tile"
+  },
+  "modes": {
+    "light": {
+      "tiles": {
+        "a": "#FFE3EF",
+        "b": "#D3F3E6"
+      },
+      "frame": "#FF8FB8",
+      "background": [
+        "#FFF0F6",
+        "#FFD9EA"
+      ],
+      "numbers": {
+        "fill": "#5A2440",
+        "halo": null
+      },
+      "snake": {
+        "base": "#FF7EB3",
+        "belly": "#FFE0EE",
+        "outline": "#AB0046",
+        "spots": "#FFFFFF",
+        "glow": null
+      },
+      "ladder": {
+        "rail": "#FFFFFF",
+        "rung": "#FFF4F8",
+        "outline": "#760A16"
+      }
+    },
+    "dark": {
+      "tiles": {
+        "a": "#2E2140",
+        "b": "#1E3A38"
+      },
+      "frame": "#B4507E",
+      "background": [
+        "#1A1224",
+        "#24182F"
+      ],
+      "numbers": {
+        "fill": "#FFEAF4",
+        "halo": "#140C1C"
+      },
+      "snake": {
+        "base": "#FF8FC0",
+        "belly": "#9C4A70",
+        "outline": "#B3004E",
+        "spots": "#FFE0EE",
+        "glow": "#FF8FC0"
+      },
+      "ladder": {
+        "rail": "#F3E6EC",
+        "rung": "#F3E6EC",
+        "outline": "#A30015"
+      }
+    }
+  }
+}

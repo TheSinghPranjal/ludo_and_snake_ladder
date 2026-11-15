@@ -31,3 +31,23 @@ One line per decision: date, decision, reason.
 - 2026-11-11: Music M4A uses HE-AAC 16 kbps mono (130 KB). Audio generation needs macOS for the `aac_at` encoder.
 - 2026-11-11: Ludo token edges, not fills, carry the 3:1 contrast: yellow fill is 1.6:1 on white, so tokens rely on the dark-tint outline (light) or white rim (dark) plus the colour-blind symbol.
 - 2026-11-11: Hub card art fades to the card colour over its left 42% so titles and the Continue chip never sit on the illustration.
+- 2026-11-12: Milestone 1 adds only the packages it uses (`freezed`, `json_serializable`, `clock`, `fake_async`, `very_good_analysis`); the rest of the stack joins in the milestone that first needs it. `json_annotation` must be ≥ 4.11 for `json_serializable` 6.13.
+- 2026-11-12: `AuthoritySession` is built in Milestone 1. It is pure Dart, and the timer, race and 1120 ms tests need the real orchestrator rather than a test double.
+- 2026-11-12: Ludo treats legal moves that differ only in which identical token moves (same start and end, e.g. leaving base) as one move, so they auto-play at 1120 ms.
+- 2026-11-12: In the Ludo timeout policy, "safe cell" means the 8 safe track cells. Home-column cells already cannot be captured and are covered by rule 5 (furthest token).
+- 2026-11-12: AI think time starts after the previous batch's animations drain, so an AI never rolls the instant a long snake slide ends. Ludo think time is halved in Fast like S&L.
+- 2026-11-12: A removed Ludo player's tokens return to base and are ignored by capture, AI and turn order; the presentation hides that yard.
+- 2026-11-12: S&L simulation reports rounds per game (turns of the player who took the most), the same measure as `tool/design/check_snl_boards.py`.
+- 2026-11-12: Game domains may also import `package:meta` and `package:collection` (annotations and pure collections); the layering test allows them.
+- 2026-11-12: Milestone 2 adds `flutter_riverpod` 3.3.1 with `riverpod_generator` 4.0.3, `go_router` 17.5.0, `shared_preferences`, `flame_audio` 2.12.2 and `mocktail`. Flame itself is used for boards from Milestone 3.
+- 2026-11-12: Milestone 2 boards are drawn with `CustomPainter` plus a shared token layer, with tokens following each event's path (hops, ladder line, snake curve). Milestone 3 replaces the painters with Flame components; controllers, timing and motions stay.
+- 2026-11-12: `LocalGameController` is the session's `AnimationGate`: each batch shows the dice tumble, then the board. Automatic actions wait on its futures, so local play uses the same 1120 ms / dice-landed rule as Wi-Fi.
+- 2026-11-12: `AuthoritySession` gained `pause`/`resume` so the Pause menu stops the turn timer and AI. A running timer restarts at full length on resume.
+- 2026-11-12: The Pause menu has "Save and exit" (keeps the save for Continue) and "Leave game" (confirm, deletes the save). The brief deletes saves only on quit-with-confirm, so a plain exit keeps it.
+- 2026-11-12: Game-specific pages (Board Select) open at `/game/<type>/page/<name>` via `GamePresentation.buildPage`. The router exists before the games load, so presentations cannot add their own routes.
+- 2026-11-12: Stats follow the first human seat of a local game. All-AI games record nothing. Wins count by mode: Play Local, Quick Play, Wi-Fi.
+- 2026-11-12: Board unlocks are stored separately from stats, so Reset stats never re-locks a board.
+- 2026-11-12: Quick Play is you against one AI at the default difficulty: Red vs Blue in S&L, Red vs Yellow (opposite colours) in Ludo, with the saved S&L rules and snake count.
+- 2026-11-12: Host/Join Wi-Fi tiles join the Game Menu in Milestone 5, with the multiplayer platform, rather than appearing as dead buttons now.
+- 2026-11-12: Colour-blind symbols are drawn as shapes (`ColorSymbol`), not text, because Nunito and Fredoka lack ● ■ ▲ ★. Text keeps them only in semantics labels.
+- 2026-11-12: Snakes & Ladders player cards sit two per row so names stay readable at 320 dp; every card keeps the same fixed height.

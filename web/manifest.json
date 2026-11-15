@@ -1,6 +1,6 @@
 {
-    "name": "ludo_and_snake_ladder",
-    "short_name": "ludo_and_snake_ladder",
+    "name": "Ludo & Snake Ladder",
+    "short_name": "Ludo & Snakes",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.the_lazy_bear_club" "\0"
-            VALUE "FileDescription", "ludo_and_snake_ladder" "\0"
+            VALUE "FileDescription", "Ludo & Snake Ladder" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "ludo_and_snake_ladder" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.the_lazy_bear_club. All rights reserved." "\0"
             VALUE "OriginalFilename", "ludo_and_snake_ladder.exe" "\0"
-            VALUE "ProductName", "ludo_and_snake_ladder" "\0"
+            VALUE "ProductName", "Ludo & Snake Ladder" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
