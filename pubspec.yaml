@@ -42,6 +42,7 @@ flutter:
     - assets/shared/cards/
     - assets/shared/dice/
     - assets/shared/fx/
+    - assets/shared/home/
     - assets/shared/hub/
     - assets/shared/icons/
     - assets/shared/tokens/

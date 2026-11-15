@@ -56,7 +56,10 @@ abstract final class SharedAssets {
   static String wordmark(Brightness b) =>
       themed('assets/shared/brand/wordmark', b);
 
-  /// The dice-and-snake logo shown on the splash and Home.
+  /// The illustrated Home background, title included.
+  static const String homeBackground = 'assets/shared/home/home_bg.webp';
+
+  /// The dice-and-snake logo shown on the splash.
   static String splashLogo(Brightness b) =>
       themed('assets/shared/brand/splash_logo', b);
 }

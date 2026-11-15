@@ -15188,6 +15188,24 @@
     22,
     26
    ]
+  },
+  {
+   "name": "home_bg",
+   "game": "shared",
+   "kind": "image",
+   "path": "assets/shared/home/home_bg.webp",
+   "source": "art/shared/home/home_bg.png",
+   "size": [
+    941,
+    1671
+   ],
+   "scales": [
+    1
+   ],
+   "modes": "any",
+   "screens": [
+    "home"
+   ]
   }
  ]
 }

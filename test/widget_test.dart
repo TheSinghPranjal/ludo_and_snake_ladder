@@ -18,7 +18,10 @@ void main() {
     expect(find.byType(HomeScreen), findsNothing);
     await app.start(tester);
     expect(find.byType(HomeScreen), findsOneWidget);
-    expect(find.bySemanticsLabel(AppInfo.name), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(RegExp('^${RegExp.escape(AppInfo.name)}')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Play opens the game Hub and back returns Home', (tester) async {
