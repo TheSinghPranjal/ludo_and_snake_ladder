@@ -59,6 +59,40 @@ abstract final class SharedAssets {
   /// The illustrated Home background, title included.
   static const String homeBackground = 'assets/shared/home/home_bg.webp';
 
+  /// The meadow background behind the Hub and Settings.
+  static const String meadowBackground = 'assets/shared/home/meadow_bg.webp';
+
+  /// Dice resting on the grass, bottom-left of the meadow screens.
+  static const String meadowDice = 'assets/shared/home/decor_dice.webp';
+
+  /// Red and blue pawns, bottom-right of the meadow screens.
+  static const String meadowPawns = 'assets/shared/home/decor_pawns.webp';
+
+  /// Hanging wooden sign reading "Settings".
+  static const String signSettings = 'assets/shared/ui/sign_settings.webp';
+
+  /// Hanging wooden sign reading "Choose a game".
+  static const String signChooseGame = 'assets/shared/ui/sign_choose_game.webp';
+
+  /// Illustrated Hub card for Snakes & Ladders, Play button included.
+  static const String hubCardSnakes = 'assets/shared/hub/hub_card_snakes.webp';
+
+  /// Illustrated Hub card for Ludo, Play button included.
+  static const String hubCardLudo = 'assets/shared/hub/hub_card_ludo.webp';
+
+  /// Hanging wooden sign reading "Player Setup".
+  static const String signPlayerSetup =
+      'assets/shared/ui/sign_player_setup.webp';
+
+  /// Glossy pawn of [c] for the Player Setup seat cards.
+  static String meadowPawn(PlayerColor c) =>
+      'assets/shared/ui/meadow_pawn_${c.name}.webp';
+
+  /// A colourful meadow icon: palette, sound, sfx, music, haptics, speed,
+  /// timer, robot, stats, sun, moon, players, snake, gamepad or board.
+  static String meadowIcon(String name) =>
+      'assets/shared/ui/meadow_ic_$name.webp';
+
   /// The dice-and-snake logo shown on the splash.
   static String splashLogo(Brightness b) =>
       themed('assets/shared/brand/splash_logo', b);

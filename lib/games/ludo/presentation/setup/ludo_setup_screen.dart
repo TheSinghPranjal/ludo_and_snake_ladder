@@ -5,8 +5,12 @@ import 'package:dice_party/platform/persistence/game_stats.dart';
 import 'package:dice_party/platform/session/game_launch.dart';
 import 'package:dice_party/platform/session/game_module.dart';
 import 'package:dice_party/platform/settings/settings_providers.dart';
+import 'package:dice_party/platform/theme/app_theme.dart';
 import 'package:dice_party/platform/theme/spacing.dart';
-import 'package:dice_party/platform/ui/page_frame.dart';
+import 'package:dice_party/platform/ui/assets.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_controls.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_frame.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_palette.dart';
 import 'package:dice_party/platform/ui/replace_save.dart';
 import 'package:dice_party/platform/ui/seat_editor.dart';
 import 'package:flutter/material.dart';
@@ -67,42 +71,44 @@ class _LudoSetupScreenState extends ConsumerState<LudoSetupScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => PageFrame(
+  Widget build(BuildContext context) => MeadowFrame(
     title: 'Player Setup',
-    bottom: FilledButton(onPressed: _start, child: const Text('Start')),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SectionTitle('Players'),
-        SegmentedButton<int>(
-          showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(value: 2, label: Text('2')),
-            ButtonSegment(value: 3, label: Text('3')),
-            ButtonSegment(value: 4, label: Text('4')),
-          ],
-          selected: {_count},
-          onSelectionChanged: (v) => _setCount(v.first),
-        ),
-        const SizedBox(height: Space.s),
-        Text(
-          'Turns go clockwise: Red, Blue, Yellow, Green. '
-          'Tap a token to change colour.',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: Space.m),
-        for (var i = 0; i < _seats.length; i++)
-          SeatEditor(
-            key: ValueKey('seat$i'),
-            index: i,
-            seat: _seats[i],
-            takenColors: {
-              for (var j = 0; j < _seats.length; j++)
-                if (j != i) _seats[j].color,
-            },
-            onChanged: (s) => setState(() => _seats[i] = s),
+    signAsset: SharedAssets.signPlayerSetup,
+    signAspect: 538 / 158,
+    bottomClearance: 0.1,
+    child: MeadowPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const MeadowHeader(icon: 'players', title: 'Players'),
+          MeadowPlayerCount(selected: _count, onChanged: _setCount),
+          const SizedBox(height: Space.s),
+          const Text(
+            'Turns go clockwise: Red, Blue, Yellow, Green. '
+            'Tap a pawn to change colour.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: bodyFont,
+              fontSize: 14,
+              color: HomePalette.meadowInk,
+            ),
           ),
-      ],
+          const SizedBox(height: Space.l),
+          for (var i = 0; i < _seats.length; i++)
+            SeatEditor(
+              key: ValueKey('seat$i'),
+              index: i,
+              seat: _seats[i],
+              takenColors: {
+                for (var j = 0; j < _seats.length; j++)
+                  if (j != i) _seats[j].color,
+              },
+              onChanged: (s) => setState(() => _seats[i] = s),
+            ),
+          const SizedBox(height: Space.m),
+          MeadowStartButton(onTap: _start),
+        ],
+      ),
     ),
   );
 }

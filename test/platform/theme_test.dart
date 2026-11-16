@@ -15,7 +15,7 @@ import '../helpers/app_harness.dart';
 const _paletteFiles = {
   'lib/platform/theme/app_colors.dart',
   'lib/games/ludo/presentation/theme/board_palette.dart',
-  'lib/shell/home/home_palette.dart',
+  'lib/platform/ui/meadow/meadow_palette.dart',
 };
 
 void main() {

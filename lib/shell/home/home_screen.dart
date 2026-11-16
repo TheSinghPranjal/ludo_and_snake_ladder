@@ -13,7 +13,7 @@ import 'package:dice_party/platform/theme/spacing.dart';
 import 'package:dice_party/platform/ui/app_icon.dart';
 import 'package:dice_party/platform/ui/assets.dart';
 import 'package:dice_party/platform/ui/avatar_image.dart';
-import 'package:dice_party/shell/home/home_palette.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_palette.dart';
 import 'package:dice_party/shell/hub/hub_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

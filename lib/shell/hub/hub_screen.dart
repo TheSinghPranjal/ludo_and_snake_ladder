@@ -1,21 +1,24 @@
 import 'dart:async';
 
 import 'package:dice_party/platform/app_services.dart';
+import 'package:dice_party/platform/audio/audio_service.dart';
 import 'package:dice_party/platform/navigation/app_routes.dart';
 import 'package:dice_party/platform/session/game_launch.dart';
+import 'package:dice_party/platform/session/game_module.dart';
 import 'package:dice_party/platform/session/game_presentation.dart';
 import 'package:dice_party/platform/settings/settings_providers.dart';
-import 'package:dice_party/platform/theme/app_colors.dart';
+import 'package:dice_party/platform/theme/app_theme.dart';
 import 'package:dice_party/platform/theme/spacing.dart';
 import 'package:dice_party/platform/ui/app_icon.dart';
 import 'package:dice_party/platform/ui/assets.dart';
-import 'package:dice_party/platform/ui/page_frame.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_frame.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// The Game Hub: one illustrated card per game. Opened from Home; back
-/// returns to Home.
+/// The Game Hub: an illustrated card per game on the meadow, then How to
+/// Play.
 class HubScreen extends ConsumerWidget {
   /// Creates the Hub.
   const HubScreen({super.key});
@@ -23,22 +26,57 @@ class HubScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final catalog = ref.watch(gameCatalogProvider).value;
-    return PageFrame(
+    final saves = ref.watch(savesControllerProvider);
+    final audio = ref.watch(appServicesProvider).audio;
+
+    Widget card(GameType type, String name, String asset, double aspect) {
+      final save = saves[type];
+      return _GameCard(
+        name: name,
+        cardAsset: asset,
+        aspect: aspect,
+        onTap: () {
+          audio.play(Sfx.uiTap);
+          unawaited(context.push(AppRoutes.menu(type)));
+        },
+        saveText: save == null ? null : catalog?[type]?.describeSave(save),
+        onResume: save == null
+            ? null
+            : () {
+                audio.play(Sfx.uiTap);
+                unawaited(
+                  context.push(AppRoutes.play(type), extra: ResumeLaunch(save)),
+                );
+              },
+      );
+    }
+
+    return MeadowFrame(
       title: 'Choose a game',
+      signAsset: SharedAssets.signChooseGame,
+      signAspect: 533 / 208,
+      signWidthFactor: 0.64,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final g in catalog?.games ?? const <GamePresentation>[])
-            Padding(
-              padding: const EdgeInsets.only(bottom: Space.l),
-              child: _GameCard(game: g),
+          card(
+            GameType.snakes,
+            'Snakes & Ladders',
+            SharedAssets.hubCardSnakes,
+            789 / 432,
+          ),
+          const SizedBox(height: Space.l),
+          card(GameType.ludo, 'Ludo', SharedAssets.hubCardLudo, 789 / 385),
+          const SizedBox(height: Space.xl),
+          Center(
+            child: _HowToPlayButton(
+              onTap: catalog == null
+                  ? null
+                  : () {
+                      audio.play(Sfx.uiTap);
+                      unawaited(showHowToPlayPicker(context, catalog));
+                    },
             ),
-          OutlinedButton.icon(
-            onPressed: catalog == null
-                ? null
-                : () => unawaited(showHowToPlayPicker(context, catalog)),
-            icon: const AppIcon('info', size: 20),
-            label: const Text('How to Play'),
           ),
         ],
       ),
@@ -69,117 +107,224 @@ Future<void> showHowToPlayPicker(BuildContext context, GameCatalog catalog) =>
       ),
     );
 
-class _GameCard extends ConsumerWidget {
-  const _GameCard({required this.game});
+/// One illustrated game card. The artwork carries the title and the Play
+/// button; the whole card is the tap target.
+class _GameCard extends StatefulWidget {
+  const _GameCard({
+    required this.name,
+    required this.cardAsset,
+    required this.aspect,
+    required this.onTap,
+    this.saveText,
+    this.onResume,
+  });
 
-  final GamePresentation game;
+  final String name;
+  final String cardAsset;
+  final double aspect;
+  final VoidCallback onTap;
+  final String? saveText;
+  final VoidCallback? onResume;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final save = ref.watch(savesControllerProvider)[game.type];
-    final c = AppColors.of(context);
-    final b = Theme.of(context).brightness;
-    final name = game.module.displayName;
+  State<_GameCard> createState() => _GameCardState();
+}
+
+class _GameCardState extends State<_GameCard> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, box) {
-        final height = (box.maxWidth * 180 / 340).clamp(176.0, 260.0);
-        final textWidth = box.maxWidth * 0.46;
-        return Material(
-          color: c.surfaceAlt,
-          elevation: 2,
-          shadowColor: c.shadow,
-          clipBehavior: Clip.antiAlias,
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            onTap: () => context.push(AppRoutes.menu(game.type)),
-            child: SizedBox(
-              height: height,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset(
-                    game.hubCard(b),
-                    fit: BoxFit.cover,
-                    alignment: Alignment.centerRight,
-                    excludeFromSemantics: true,
-                  ),
-                  Positioned(
-                    left: Space.l,
-                    top: Space.m,
-                    bottom: Space.m,
-                    width: textWidth,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          maxLines: 2,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const Spacer(),
-                        Semantics(
-                          button: true,
-                          label: 'Play $name',
-                          excludeSemantics: true,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: c.primary,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: Space.l,
-                                vertical: 6,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  AppIcon('play', size: 18, color: c.onPrimary),
-                                  const SizedBox(width: Space.xs),
-                                  Text(
-                                    'Play',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(color: c.onPrimary),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (save != null) ...[
-                          const SizedBox(height: Space.s),
-                          Semantics(
-                            button: true,
-                            label:
-                                'Continue $name, '
-                                '${game.describeSave(save)}',
-                            excludeSemantics: true,
-                            child: GestureDetector(
-                              onTap: () => context.push(
-                                AppRoutes.play(game.type),
-                                extra: ResumeLaunch(save),
-                              ),
-                              child: Image.asset(
-                                SharedAssets.themed(
-                                  'assets/shared/ui/chip_continue',
-                                  b,
-                                ),
-                                height: 40,
-                              ),
-                            ),
+        final w = box.maxWidth;
+        final radius = BorderRadius.circular(w * 0.071);
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Semantics(
+              button: true,
+              label: '${widget.name}, Play',
+              excludeSemantics: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapDown: (_) => setState(() => _pressed = true),
+                onTapUp: (_) => setState(() => _pressed = false),
+                onTapCancel: () => setState(() => _pressed = false),
+                onTap: widget.onTap,
+                child: AnimatedScale(
+                  scale: _pressed ? 0.97 : 1,
+                  duration: const Duration(milliseconds: 100),
+                  child: AspectRatio(
+                    aspectRatio: widget.aspect,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: radius,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: HomePalette.shadow,
+                            blurRadius: 14,
+                            offset: Offset(0, 6),
                           ),
                         ],
-                      ],
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Invisible, for finders; the artwork shows them.
+                          Opacity(
+                            opacity: 0,
+                            child: Column(
+                              children: [Text(widget.name), const Text('Play')],
+                            ),
+                          ),
+                          Image.asset(
+                            widget.cardAsset,
+                            fit: BoxFit.fill,
+                            excludeFromSemantics: true,
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
+                ),
+              ),
+            ),
+            if (widget.onResume != null)
+              Positioned(
+                right: w * 0.04,
+                top: -Space.s,
+                child: _ResumeChip(
+                  label: 'Continue ${widget.name}, ${widget.saveText ?? ''}',
+                  onTap: widget.onResume!,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ResumeChip extends StatelessWidget {
+  const _ResumeChip({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 36),
+          padding: const EdgeInsets.symmetric(horizontal: Space.m),
+          decoration: BoxDecoration(
+            color: HomePalette.continueBg,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: HomePalette.continueBorder, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: HomePalette.cardShadow,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.play_circle_fill_rounded,
+                size: 18,
+                color: HomePalette.continueIcon,
+              ),
+              SizedBox(width: Space.xs),
+              Text(
+                'Resume',
+                style: TextStyle(
+                  fontFamily: displayFont,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: HomePalette.continueText,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HowToPlayButton extends StatefulWidget {
+  const _HowToPlayButton({required this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  State<_HowToPlayButton> createState() => _HowToPlayButtonState();
+}
+
+class _HowToPlayButtonState extends State<_HowToPlayButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'How to Play',
+      enabled: widget.onTap != null,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _pressed ? 0.96 : 1,
+          duration: const Duration(milliseconds: 100),
+          child: const SizedBox(
+            width: 260,
+            child: MeadowPill(
+              height: 56,
+              padding: EdgeInsets.symmetric(horizontal: Space.l + Space.xs),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 30,
+                    color: HomePalette.navy,
+                  ),
+                  SizedBox(width: Space.m),
+                  Expanded(
+                    child: Text(
+                      'How to Play',
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontFamily: displayFont,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: HomePalette.navy,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 30,
+                    color: HomePalette.navy,
                   ),
                 ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

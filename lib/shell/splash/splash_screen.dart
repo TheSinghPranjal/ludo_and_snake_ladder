@@ -70,6 +70,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final b = Theme.of(context).brightness;
     final images = [
       SharedAssets.splashLogo(b),
+      SharedAssets.meadowBackground,
+      SharedAssets.meadowDice,
+      SharedAssets.meadowPawns,
+      SharedAssets.signChooseGame,
+      SharedAssets.hubCardSnakes,
+      SharedAssets.hubCardLudo,
       SharedAssets.themed('assets/shared/hub/hub_card_snakes', b),
       SharedAssets.themed('assets/shared/hub/hub_card_ludo', b),
       SharedAssets.themed('assets/shared/ui/chip_continue', b),

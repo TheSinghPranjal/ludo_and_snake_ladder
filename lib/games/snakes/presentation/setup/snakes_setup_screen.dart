@@ -8,7 +8,10 @@ import 'package:dice_party/platform/session/game_launch.dart';
 import 'package:dice_party/platform/session/game_module.dart';
 import 'package:dice_party/platform/settings/settings_providers.dart';
 import 'package:dice_party/platform/theme/spacing.dart';
-import 'package:dice_party/platform/ui/page_frame.dart';
+import 'package:dice_party/platform/ui/assets.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_controls.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_frame.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_palette.dart';
 import 'package:dice_party/platform/ui/replace_save.dart';
 import 'package:dice_party/platform/ui/seat_editor.dart';
 import 'package:flutter/material.dart';
@@ -73,69 +76,98 @@ class _SnakesSetupScreenState extends ConsumerState<SnakesSetupScreen> {
   Widget build(BuildContext context) {
     final board = widget.presentation.board(_config.boardId);
     final seats = _seats.take(_count).toList();
-    return PageFrame(
+    return MeadowFrame(
       title: 'Player Setup',
-      bottom: FilledButton(onPressed: _start, child: const Text('Start')),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SectionTitle('Players'),
-          SegmentedButton<int>(
-            showSelectedIcon: false,
-            segments: const [
-              ButtonSegment(value: 2, label: Text('2')),
-              ButtonSegment(value: 3, label: Text('3')),
-              ButtonSegment(value: 4, label: Text('4')),
-            ],
-            selected: {_count},
-            onSelectionChanged: (v) => setState(() => _count = v.first),
-          ),
-          const SizedBox(height: Space.m),
-          for (var i = 0; i < seats.length; i++)
-            SeatEditor(
-              key: ValueKey('seat$i'),
-              index: i,
-              seat: seats[i],
-              takenColors: {
-                for (var j = 0; j < seats.length; j++)
-                  if (j != i) seats[j].color,
-              },
-              onChanged: (s) => setState(() => _seats[i] = s),
+      signAsset: SharedAssets.signPlayerSetup,
+      signAspect: 538 / 158,
+      bottomClearance: 0.1,
+      child: MeadowPanel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const MeadowHeader(icon: 'players', title: 'Players'),
+            MeadowPlayerCount(
+              selected: _count,
+              onChanged: (n) => setState(() => _count = n),
             ),
-          const SectionTitle('Snakes'),
-          Row(
-            children: [
-              SizedBox(
-                width: 96,
-                child: SnakesBoardPreview(
-                  board: board,
-                  snakeCount: _config.snakeCount,
-                ),
+            const SizedBox(height: Space.l),
+            for (var i = 0; i < seats.length; i++)
+              SeatEditor(
+                key: ValueKey('seat$i'),
+                index: i,
+                seat: seats[i],
+                takenColors: {
+                  for (var j = 0; j < seats.length; j++)
+                    if (j != i) seats[j].color,
+                },
+                onChanged: (s) => setState(() => _seats[i] = s),
               ),
-              const SizedBox(width: Space.l),
-              Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: SnakesStepper(
-                    value: _config.snakeCount,
-                    onChanged: (n) => setState(
-                      () => _config = _config.copyWith(snakeCount: n),
+            const MeadowDivider(),
+            const MeadowHeader(icon: 'snake', title: 'Snakes'),
+            Row(
+              children: [
+                const SizedBox(width: Space.s),
+                Container(
+                  width: 108,
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [HomePalette.frameTop, HomePalette.frameBottom],
+                    ),
+                    border: Border.all(color: HomePalette.frameEdge, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: HomePalette.shadow,
+                        blurRadius: 6,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SnakesBoardPreview(
+                      board: board,
+                      snakeCount: _config.snakeCount,
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SectionTitle('Board'),
-          Card(
-            child: ListTile(
-              title: Text(board.name),
-              subtitle: const Text('Tap to choose another board'),
-              onTap: _pickBoard,
-              minTileHeight: Space.tap + Space.m,
+                const SizedBox(width: Space.m),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SnakesMeadowStepper(
+                      value: _config.snakeCount,
+                      onChanged: (n) => setState(
+                        () => _config = _config.copyWith(snakeCount: n),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            const MeadowDivider(),
+            const MeadowHeader(icon: 'board', title: 'Board'),
+            MeadowChoiceRow(
+              thumbnail: Image.asset(
+                SharedAssets.themed(
+                  'assets/games/snakes/board_select/board_card_${board.id}',
+                  Brightness.light,
+                ),
+                fit: BoxFit.cover,
+                alignment: Alignment.topCenter,
+                excludeFromSemantics: true,
+              ),
+              title: board.name,
+              subtitle: 'Tap to choose another board',
+              onTap: _pickBoard,
+            ),
+            const SizedBox(height: Space.xl),
+            MeadowStartButton(onTap: _start),
+          ],
+        ),
       ),
     );
   }
