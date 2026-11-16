@@ -7,11 +7,11 @@ import 'package:dice_party/games/snakes/presentation/game/board_painter.dart';
 import 'package:dice_party/games/snakes/presentation/theme/board_palette.dart';
 import 'package:dice_party/platform/animation/token_motion.dart';
 import 'package:dice_party/platform/session/game_module.dart';
-import 'package:dice_party/platform/theme/app_colors.dart';
 import 'package:dice_party/platform/theme/spacing.dart';
-import 'package:dice_party/platform/ui/app_icon.dart';
 import 'package:dice_party/platform/ui/assets.dart';
 import 'package:dice_party/platform/ui/dice_view.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_controls.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_game.dart';
 import 'package:dice_party/platform/ui/player_card.dart';
 import 'package:dice_party/platform/ui/token_layer.dart';
 import 'package:flutter/material.dart';
@@ -36,78 +36,60 @@ class SnakesGameView extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = controller;
     final s = c.state;
-    final t = Theme.of(context).textTheme;
-    final colors = AppColors.of(context);
     final canRoll = c.humanCanAct;
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: Space.maxBoard),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Space.xs),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        tooltip: 'Pause',
-                        onPressed: onPause,
-                        icon: const AppIcon('pause'),
-                      ),
-                      Expanded(
-                        child: Text(
-                          c.board.name,
-                          overflow: TextOverflow.ellipsis,
-                          style: t.titleMedium,
-                        ),
-                      ),
-                      Semantics(
-                        label: '${s.snakeCount} snakes',
-                        excludeSemantics: true,
-                        child: Chip(
-                          visualDensity: VisualDensity.compact,
-                          avatar: const AppIcon('snake', size: 18),
-                          label: Text('${s.snakeCount}'),
-                        ),
-                      ),
-                      const SizedBox(width: Space.s),
-                      Text('Turn ${s.turnNumber}', style: t.bodyMedium),
-                      const SizedBox(width: Space.s),
-                    ],
-                  ),
+    final height = MediaQuery.sizeOf(context).height;
+    final diceSize = (height * 0.095).clamp(54.0, 84.0);
+    return MeadowGameFrame(
+      child: Column(
+        children: [
+          MeadowGameTopBar(
+            title: c.board.name,
+            onPause: onPause,
+            trailing: [
+              MeadowStatChip(
+                label: '${s.snakeCount} snakes',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const MeadowIcon('snake', size: 22),
+                    const SizedBox(width: Space.xs),
+                    Text('${s.snakeCount}'),
+                  ],
                 ),
-                _PlayerStrip(controller: c),
-                const SizedBox(height: Space.s),
-                Expanded(child: _Board(controller: c)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Space.l,
-                    vertical: Space.xs,
-                  ),
-                  child: Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      c.status,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      style: t.titleMedium?.copyWith(color: colors.text),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: Space.s),
-                  child: DiceView(
-                    face: c.diceFace,
-                    rolling: c.rolling,
-                    swipeToRoll: true,
-                    onRoll: canRoll ? c.roll : null,
-                  ),
-                ),
-              ],
+              ),
+              MeadowStatChip(
+                label: 'Turn ${s.turnNumber}',
+                blue: true,
+                child: Text('Turn ${s.turnNumber}'),
+              ),
+            ],
+          ),
+          const SizedBox(height: Space.xs),
+          _PlayerStrip(controller: c),
+          const SizedBox(height: Space.s),
+          Expanded(child: _Board(controller: c)),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Space.l,
+              vertical: Space.xs,
+            ),
+            child: MeadowStatusLine(c.status),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: Space.xs, bottom: Space.s),
+            child: MeadowDiceStage(
+              diceSize: diceSize,
+              glowing: canRoll && !c.rolling,
+              dice: DiceView(
+                size: diceSize,
+                face: c.diceFace,
+                rolling: c.rolling,
+                swipeToRoll: true,
+                onRoll: canRoll ? c.roll : null,
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -188,28 +170,21 @@ class _Board extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 Positioned(
-                  left: -cell * 0.12,
-                  top: -cell * 0.12,
-                  width: w + cell * 0.24,
-                  height: w + cell * 0.24,
+                  left: -cell * 0.16,
+                  top: -cell * 0.16,
+                  width: w + cell * 0.32,
+                  height: w + cell * 0.32,
                   child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: palette.frame,
-                      borderRadius: BorderRadius.circular(cell * 0.25),
-                    ),
+                    decoration: meadowBoardFrame(palette.frame, cell * 0.3),
                   ),
                 ),
                 Positioned(
-                  left: -cell * 0.3,
-                  top: w + cell * 0.16,
+                  left: -cell * 0.1,
+                  top: w + cell * 0.22,
                   width: cell * 1.6,
                   height: cell * 0.68,
                   child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: palette.tileB,
-                      borderRadius: BorderRadius.circular(cell * 0.3),
-                      border: Border.all(color: palette.frame, width: 2),
-                    ),
+                    decoration: meadowBoardFrame(palette.frame, cell * 0.34),
                   ),
                 ),
                 Positioned(

@@ -216,4 +216,49 @@ abstract final class HomePalette {
 
   /// Gold frame edge.
   static const frameEdge = Color(0xFFE08A00);
+
+  /// Night wash over the meadow behind a game in dark mode.
+  static const nightWash = Color(0xB30B1530);
+
+  /// Name on the wooden title sign.
+  static const signText = Color(0xFFFFFBF2);
+
+  /// Outline of the sign text.
+  static const signStroke = Color(0xFF6B2E0C);
+
+  /// Orange border of the cream stat chip.
+  static const chipEdge = Color(0xFFF2A93B);
+
+  /// Light blue Turn chip, top.
+  static const turnTop = Color(0xFFF4FAFF);
+
+  /// Light blue Turn chip, bottom.
+  static const turnBottom = Color(0xFFD6ECFF);
+
+  /// Waiting player card, cream.
+  static const cardWaiting = Color(0xFFFFF4DC);
+
+  /// Muted line on a player card.
+  static const cardMuted = Color(0xFF4A5378);
+
+  /// Dice pedestal, red top.
+  static const pedestalRed = Color(0xFFF0372E);
+
+  /// Dice pedestal, red side.
+  static const pedestalRedDark = Color(0xFFB8170F);
+
+  /// Dice pedestal, gold base top.
+  static const pedestalGold = Color(0xFFFFD34A);
+
+  /// Dice pedestal, gold base side.
+  static const pedestalGoldDark = Color(0xFFE88B00);
+
+  /// Sun glow behind the dice.
+  static const glow = Color(0xCCFFF59D);
+
+  /// Rays behind the dice.
+  static const ray = Color(0xAAFFE36B);
+
+  /// Yellow dashes beside the status line.
+  static const statusBurst = Color(0xFFFFC21A);
 }

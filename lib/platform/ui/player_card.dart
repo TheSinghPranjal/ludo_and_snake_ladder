@@ -5,6 +5,8 @@ import 'package:dice_party/platform/timer/turn_timer.dart';
 import 'package:dice_party/platform/ui/assets.dart';
 import 'package:dice_party/platform/ui/avatar_image.dart';
 import 'package:dice_party/platform/ui/color_symbol.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_palette.dart';
+import 'package:dice_party/platform/ui/seat_editor.dart';
 import 'package:dice_party/platform/ui/timer_ring.dart';
 import 'package:flutter/material.dart';
 
@@ -43,16 +45,28 @@ class PlayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
     final colour = c.player(player.color);
+    final tint = seatTint(player.color);
     final rank = player.finishedRank;
     final dimmed = player.isRemoved;
-    Widget avatar = AvatarImage(player.avatar, size: 36);
+    Widget avatar = Container(
+      width: 46,
+      height: 46,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [tint.bg, tint.border],
+        ),
+        border: Border.all(color: HomePalette.white, width: 2),
+      ),
+      child: AvatarImage(player.avatar, size: 36),
+    );
     final t = timer;
-    avatar = active && t != null
-        ? TimerRing(timer: t, child: avatar)
-        : SizedBox.square(
-            dimension: 44,
-            child: Padding(padding: const EdgeInsets.all(4), child: avatar),
-          );
+    if (active && t != null) {
+      avatar = TimerRing(timer: t, size: 50, child: avatar);
+    }
     final state = player.isRemoved
         ? 'left the game'
         : rank != null
@@ -71,17 +85,25 @@ class PlayerCard extends StatelessWidget {
         duration: const Duration(milliseconds: 220),
         height: playerCardHeight,
         decoration: BoxDecoration(
-          color: active ? c.surface : c.surfaceAlt,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(18),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: active
+                ? const [HomePalette.white, HomePalette.panelTop]
+                : const [HomePalette.panelTop, HomePalette.cardWaiting],
+          ),
           border: Border.all(
-            color: active ? colour : c.outline,
-            width: 2.5,
+            color: active ? colour : HomePalette.white,
+            width: 3,
           ),
           boxShadow: [
             BoxShadow(
-              color: active ? colour.withValues(alpha: 0.45) : c.shadow,
-              blurRadius: active ? 12 : 3,
-              offset: const Offset(0, 1),
+              color: active
+                  ? colour.withValues(alpha: 0.45)
+                  : HomePalette.cardShadow,
+              blurRadius: active ? 12 : 6,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -96,9 +118,12 @@ class PlayerCard extends StatelessWidget {
                   excludeSemantics: true,
                   child: Row(
                     children: [
-                      const SizedBox(width: 2),
-                      avatar,
-                      const SizedBox(width: 2),
+                      const SizedBox(width: 6),
+                      SizedBox.square(
+                        dimension: 50,
+                        child: Center(child: avatar),
+                      ),
+                      const SizedBox(width: 6),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -108,25 +133,28 @@ class PlayerCard extends StatelessWidget {
                               player.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontFamily: displayFont,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                                color: c.text,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 17,
+                                height: 1.15,
+                                color: HomePalette.navy,
                               ),
                             ),
+                            const SizedBox(height: 2),
                             Row(
                               children: [
-                                ColorSymbol(player.color, size: 10),
-                                const SizedBox(width: 4),
+                                ColorSymbol(player.color),
+                                const SizedBox(width: 5),
                                 Expanded(
                                   child: Text(
                                     detail,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: c.textMuted,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: HomePalette.cardMuted,
                                     ),
                                   ),
                                 ),
@@ -142,13 +170,13 @@ class PlayerCard extends StatelessWidget {
               if (rank != null)
                 Image.asset(
                   SharedAssets.medal(rank.clamp(1, 4)),
-                  width: 22,
-                  height: 22,
+                  width: 24,
+                  height: 24,
                   excludeFromSemantics: true,
                 )
               else
                 ?trailing,
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
             ],
           ),
         ),

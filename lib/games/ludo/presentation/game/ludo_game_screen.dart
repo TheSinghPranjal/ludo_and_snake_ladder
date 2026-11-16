@@ -7,11 +7,10 @@ import 'package:dice_party/games/ludo/presentation/game/ludo_board_painter.dart'
 import 'package:dice_party/games/ludo/presentation/theme/board_palette.dart';
 import 'package:dice_party/platform/animation/token_motion.dart';
 import 'package:dice_party/platform/session/game_module.dart';
-import 'package:dice_party/platform/theme/app_colors.dart';
 import 'package:dice_party/platform/theme/spacing.dart';
-import 'package:dice_party/platform/ui/app_icon.dart';
 import 'package:dice_party/platform/ui/assets.dart';
 import 'package:dice_party/platform/ui/dice_view.dart';
+import 'package:dice_party/platform/ui/meadow/meadow_game.dart';
 import 'package:dice_party/platform/ui/player_card.dart';
 import 'package:dice_party/platform/ui/token_layer.dart';
 import 'package:flutter/material.dart';
@@ -35,67 +34,51 @@ class LudoGameView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = controller;
-    final t = Theme.of(context).textTheme;
     Widget corner(PlayerColor color) => Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: Space.xs),
         child: _CornerCard(controller: c, color: color),
       ),
     );
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: Space.maxBoard),
-            child: Column(
+    return MeadowGameFrame(
+      child: Column(
+        children: [
+          MeadowGameTopBar(
+            title: 'Ludo',
+            onPause: onPause,
+            // Balances the Pause button so the sign stays centred.
+            trailing: const [SizedBox(width: 46)],
+          ),
+          const SizedBox(height: Space.xs),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Space.xs),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    const SizedBox(width: Space.xs),
-                    IconButton(
-                      tooltip: 'Pause',
-                      onPressed: onPause,
-                      icon: const AppIcon('pause'),
-                    ),
-                    Expanded(child: Text('Ludo', style: t.titleMedium)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    corner(PlayerColor.blue),
-                    corner(PlayerColor.yellow),
-                  ],
-                ),
-                const SizedBox(height: Space.s),
-                Expanded(child: _Board(controller: c)),
-                const SizedBox(height: Space.s),
-                Row(
-                  children: [
-                    corner(PlayerColor.red),
-                    corner(PlayerColor.green),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(Space.s),
-                  child: SizedBox(
-                    height: 48,
-                    child: Center(
-                      child: Semantics(
-                        liveRegion: true,
-                        child: Text(
-                          c.status,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          style: t.titleMedium,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                corner(PlayerColor.blue),
+                corner(PlayerColor.yellow),
               ],
             ),
           ),
-        ),
+          const SizedBox(height: Space.m),
+          Expanded(child: _Board(controller: c)),
+          const SizedBox(height: Space.m),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Space.xs),
+            child: Row(
+              children: [
+                corner(PlayerColor.red),
+                corner(PlayerColor.green),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(Space.s),
+            child: SizedBox(
+              height: 52,
+              child: Center(child: MeadowStatusLine(c.status)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -141,7 +124,6 @@ class _Board extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = LudoBoardPalette.of(context);
-    final colors = AppColors.of(context);
     return LayoutBuilder(
       builder: (context, box) {
         final w = math.min(box.maxWidth - Space.l, box.maxHeight);
@@ -149,11 +131,7 @@ class _Board extends StatelessWidget {
         return Center(
           child: Container(
             padding: EdgeInsets.all(cell * 0.15),
-            decoration: BoxDecoration(
-              color: palette.frame,
-              borderRadius: BorderRadius.circular(cell * 0.4),
-              boxShadow: [BoxShadow(color: colors.shadow, blurRadius: 6)],
-            ),
+            decoration: meadowBoardFrame(palette.frame, cell * 0.4),
             child: SizedBox.square(
               dimension: w - cell * 0.3,
               child: LayoutBuilder(

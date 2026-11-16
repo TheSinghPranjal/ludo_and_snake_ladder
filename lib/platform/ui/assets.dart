@@ -84,6 +84,9 @@ abstract final class SharedAssets {
   static const String signPlayerSetup =
       'assets/shared/ui/sign_player_setup.webp';
 
+  /// Blank wooden sign with leaves; game screens write the title on it.
+  static const String signBlank = 'assets/shared/ui/sign_blank.webp';
+
   /// Glossy pawn of [c] for the Player Setup seat cards.
   static String meadowPawn(PlayerColor c) =>
       'assets/shared/ui/meadow_pawn_${c.name}.webp';
